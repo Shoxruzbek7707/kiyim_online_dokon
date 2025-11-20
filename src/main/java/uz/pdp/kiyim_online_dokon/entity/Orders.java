@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import uz.pdp.kiyim_online_dokon.entity.enums.OrderStatus;
+import uz.pdp.kiyim_online_dokon.entity.enums.PaymentMethod;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

@@ -1,7 +1,6 @@
 package uz.pdp.kiyim_online_dokon.entity;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -39,7 +39,7 @@ public class Products {
     private List<ProductImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
-    private List<Review> reviews = new ArrayList<>();
+    private List<Reviews> reviews = new ArrayList<>();
 
     @OneToMany(mappedBy = "product")
     private List<CartItem> cartItems = new ArrayList<>();
