@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import uz.pdp.kiyim_online_dokon.entity.enums.OrderStatus;
+import uz.pdp.kiyim_online_dokon.entity.enums.PaymentMethod;
 
 import java.time.LocalDateTime;
 
@@ -29,7 +31,7 @@ public class Payments {
     private PaymentMethod method;
 
     @Enumerated(EnumType.STRING)
-    private PaymentStatus status = PaymentStatus.PENDING;
+    private OrderStatus.PaymentStatus status = OrderStatus.PaymentStatus.PENDING;
 
     private String transactionId; // providerdan kelgan id
 

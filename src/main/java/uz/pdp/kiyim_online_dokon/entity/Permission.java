@@ -1,19 +1,16 @@
 package uz.pdp.kiyim_online_dokon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Objects;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity(name = "roles")
-public class Role implements GrantedAuthority {
+@Entity
+public class Permission implements GrantedAuthority {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
