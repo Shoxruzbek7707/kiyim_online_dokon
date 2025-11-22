@@ -19,7 +19,7 @@ import java.util.*;
 @Table(name = "users")
 public class Users implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false)
     private String fullName;

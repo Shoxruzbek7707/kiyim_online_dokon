@@ -1,4 +1,4 @@
-package uz.pdp.kiyim_online_dokon.service;
+package uz.pdp.kiyim_online_dokon.service.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

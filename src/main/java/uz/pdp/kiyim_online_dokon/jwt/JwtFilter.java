@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import uz.pdp.kiyim_online_dokon.service.CustomUserDetailsService;
+import uz.pdp.kiyim_online_dokon.service.security.CustomUserDetailsService;
 
 import java.io.IOException;
 
