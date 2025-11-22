@@ -24,7 +24,7 @@ public class AuthController {
             @ApiResponse(responseCode = "400", description = "Email yoki telefon band")
     })
     @PostMapping("/regiter")
-    public ResponseEntity<ApiResponse<AuthResponse>> regiter(@Valid @ResponseBody RegisterRequest dto) {
+    public ResponseEntity<ApiResponse<Auth Response>> regiter(@Valid @ResponseBody RegisterRequest dto) {
         return ResponseEntity.ok(ApiResponse.success(authService.register(dto)));
     }
 

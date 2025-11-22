@@ -21,7 +21,7 @@ import java.util.List;
 @Table(name = "orders")
 public class Orders {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne @JoinColumn(nullable = false)
     private Users user;

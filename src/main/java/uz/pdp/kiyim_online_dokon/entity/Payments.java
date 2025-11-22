@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Table(name = "payments")
 public class Payments {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @OneToOne @JoinColumn(name = "order_id", unique = true)
     private Orders order;

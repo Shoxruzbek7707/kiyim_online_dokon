@@ -4,8 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.kiyim_online_dokon.dto.admindto.OrderAdminDto;
+import uz.pdp.kiyim_online_dokon.dto.admindto.OrderAdmindetailDto;
+import uz.pdp.kiyim_online_dokon.dto.admindto.UpdateOrderStatusRequest;
+import uz.pdp.kiyim_online_dokon.entity.enums.OrderStatus;
 
 @Tag(name = "11. Admin - Orders", description = "Admin: Buyurtmalarni boshqarish")
 @RestController
@@ -34,7 +40,7 @@ public class AdminOrderController {
 
     @Operation(summary = "Bitta buyurtma (admin uchun)")
     @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<OrderAdminDetailDto>> getById(@PathVariable String orderId) {
+    public ResponseEntity<ApiResponse<OrderAdmindetailDto>> getById(@PathVariable String orderId) {
         return ResponseEntity.ok(ApiResponse.success(orderService.getDetail(orderId)));
     }
 }

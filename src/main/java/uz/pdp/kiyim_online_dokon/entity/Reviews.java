@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Table(name = "reviews")
 public class Reviews {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne @JoinColumn(nullable = false)
     private Users user;
