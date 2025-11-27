@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -17,7 +16,6 @@ import uz.pdp.kiyim_online_dokon.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -26,41 +24,35 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-                // CSRF o'chiriladi, JWT ishlatamiz
-                .csrf(csrf -> csrf.disable())
+        http.csrf(csrf -> csrf.disable());
 
-                // Sessiyasiz rejim
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Swagger uchun barcha URL larni ochamiz
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**",
+                        "/webjars/**"
+                ).permitAll()
 
-                // Ruxsatlar
-                .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()
 
-                        // Swagger uchun ruxsat beramiz
-                        .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/v3/api-docs.yaml",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html",
-                                "/swagger-resources/**",
-                                "/webjars/**"
-                        ).permitAll()
+                // Qolgan barcha endpointlar JWT bilan himoyalanadi
+                .anyRequest().authenticated()
+        );
 
-                        // Auth API → login, register, refresh token
-                        .requestMatchers("/api/auth/**").permitAll()
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        );
 
-                        // Qolgan barcha API → JWT talab qilinadi
-                        .anyRequest().authenticated()
-                )
-
-                // JWT filterni qo'shamiz
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
