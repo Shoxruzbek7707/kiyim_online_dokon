@@ -1,50 +1,54 @@
 package uz.pdp.kiyim_online_dokon.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uz.pdp.kiyim_online_dokon.dto.addressdto.AddressCreateRequest;
-import uz.pdp.kiyim_online_dokon.dto.addressdto.AddressDto;
+import uz.pdp.kiyim_online_dokon.dto.AddressDTO;
+import uz.pdp.kiyim_online_dokon.service.interfaces.AddressesService;
 
-import java.security.Principal;
 import java.util.List;
 
-
-@Tag(name = "3. Addresses", description = "Yetkazib berish manzillari")
 @RestController
 @RequestMapping("/api/addresses")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
-public class AddressController{
+public class AddressController {
+    private final AddressesService addressesService;
 
-    private final AddressService addressService;
-
-    @Operation(summary = "Yangi manzil qo'shish")
-    @PostMapping
-    public ResponseEntity<ApiResponse<AddressDto>> create(@Valid @RequestBody AddressCreateRequest dto, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(addressService.create(dto, principal)));
-    }
-
-    @Operation(summary = "Mening barcha manzillarim")
     @GetMapping
-    public ResponseEntity<ApiResponse<List<AddressDto>>> getMyAddresses(Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(addressService.getMyAddresses(principal)));
+    public ResponseEntity<List<AddressDTO>>  getAllAddresses(){
+        List<AddressDTO> addresses = addressesService.getAllAddresses();
+        return ResponseEntity.ok(addresses);
     }
 
-    @Operation(summary = "Manzilni yangilash")
+    @GetMapping("/{id}")
+    public ResponseEntity<AddressDTO> getAddressById(@PathVariable Integer id){
+        AddressDTO addressDTO = addressesService.getAddressById(id);
+        return ResponseEntity.ok(addressDTO);
+    }
+
+    @PostMapping
+    public ResponseEntity<AddressDTO> createAddress(@RequestBody AddressDTO addressDTO){
+        AddressDTO created = addressesService.createAddress(addressDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<AddressDto>> update(@PathVariable Long id, @Valid @RequestBody AddressUpdateRequest dto, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(addressService.update(id, dto, principal)));
+    public ResponseEntity<AddressDTO> updateAddress(@PathVariable Integer id, @RequestBody AddressDTO addressDTO){
+        AddressDTO updated = addressesService.updateAddress(id,addressDTO);
+        return ResponseEntity.ok(updated);
     }
 
-    @Operation(summary = "Manzilni o'chirish")
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<String>> delete(@PathVariable Long id, Principal principal) {
-        addressService.delete(id, principal);
-        return ResponseEntity.ok(ApiResponse.success("Address deleted"));
+    public ResponseEntity<Void> deleteAddress(@PathVariable Integer id){
+        addressesService.deleteAddress(id);
+        return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AddressDTO>> getAddressesByUser(@PathVariable Integer userId){
+        List<AddressDTO> addressDTOS = addressesService.getAddressesByUserId(userId);
+        return ResponseEntity.ok(addressDTOS);
+    }
+
 }

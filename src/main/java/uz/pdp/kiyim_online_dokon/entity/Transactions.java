@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import uz.pdp.kiyim_online_dokon.entity.enums.PaymentMethod;
-import uz.pdp.kiyim_online_dokon.entity.enums.OrderStatus;
+import uz.pdp.kiyim_online_dokon.entity.enums.PaymentStatus;
 
 import java.time.LocalDateTime;
 
@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 public class Transactions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Integer o'rniga JPA standarti bo'yicha Long
+    private Integer id; // Integer o'rniga JPA standarti bo'yicha Long
 
     @OneToOne // Order bilan One-to-One bog'liqlik
     @JoinColumn(name = "order_id", unique = true, nullable = false)
@@ -37,7 +37,7 @@ public class Transactions {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus.PaymentStatus status = OrderStatus.PaymentStatus.PENDING;
+    private PaymentStatus status = PaymentStatus.PENDING;
 
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;

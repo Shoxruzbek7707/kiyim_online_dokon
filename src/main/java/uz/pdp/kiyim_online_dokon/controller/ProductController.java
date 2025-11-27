@@ -1,50 +1,84 @@
 package uz.pdp.kiyim_online_dokon.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import uz.pdp.kiyim_online_dokon.dto.ProductImageDTO;
+import uz.pdp.kiyim_online_dokon.dto.ProductsDTO;
+import uz.pdp.kiyim_online_dokon.service.interfaces.ProductsService;
 
-@Tag(name = "5. Products", description = "Mahsulotlar: homepage, qidiruv, detail")
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
 
-    private final ProductService productService;
+    private final ProductsService productsService;
 
-    @Operation(summary = "Yangiliklar (New Arrivals)")
-    @GetMapping("/new-arrivals")
-    public ResponseEntity<ApiResponse<List<ProductCardDto>>> getNewArrivals() {
-        return ResponseEntity.ok(ApiResponse.success(productService.getNewArrivals()));
+    @GetMapping
+    public ResponseEntity<List<ProductsDTO>> getAllProducts() {
+        return ResponseEntity.ok(productsService.getAllProducts());
     }
 
-    @Operation(summary = "Eng ko'p sotilganlar")
-    @GetMapping("/top-selling")
-    public ResponseEntity<ApiResponse<List<ProductCardDto>>> getTopSelling() {
-        return ResponseEntity.ok(ApiResponse.success(productService.getTopSelling()));
-    }
 
-    @Operation(summary = "Mahsulot qidiruv")
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Page<ProductCardDto>>> search(
-            @RequestParam String q,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(ApiResponse.success(productService.search(q, page, size)));
-    }
-
-    @Operation(summary = "Bitta mahsulot (detail)")
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ProductDetailDetailDto>> getDetail(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(productService.getDetail(id)));
+    public ResponseEntity<ProductsDTO> getProductById(@PathVariable Integer id) {
+        ProductsDTO dto = productsService.getProductById(id);
+        return ResponseEntity.ok(dto);
     }
 
-    @Operation(summary = "O'xshash mahsulotlar")
-    @GetMapping("/{id}/related")
-    public ResponseEntity<ApiResponse<List<ProductCardDto>>> getRelated(@PathVariable Long id) {
-        return ResponseEntity.ok(ApiResponse.success(productService.getRelated(id)));
+    @PostMapping
+    public ResponseEntity<ProductsDTO> createProduct(@RequestBody ProductsDTO dto) {
+        ProductsDTO createdProduct = productsService.createProduct(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductsDTO> updateProduct(@PathVariable Integer id,
+                                                     @RequestBody ProductsDTO dto) {
+        ProductsDTO updatedProduct = productsService.updateProduct(id, dto);
+        return ResponseEntity.ok(updatedProduct);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Integer id) {
+        productsService.deleteProduct(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @PostMapping(value = "/{productId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ProductImageDTO> uploadImage(@PathVariable Integer productId,
+                                                       @RequestParam("file") MultipartFile file,
+                                                       @RequestParam(value = "isMain", defaultValue = "false") boolean isMain) {
+        ProductImageDTO uploadedImage = productsService.uploadImage(productId, file, isMain);
+        return ResponseEntity.status(HttpStatus.CREATED).body(uploadedImage);
+    }
+
+
+    @GetMapping("/images/{imageId}")
+    public ResponseEntity<byte[]> getImage(@PathVariable Integer imageId) {
+        ProductImageDTO image = productsService.getImageById(imageId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setContentLength(image.getImageBytes().length);
+
+        return new ResponseEntity<>(image.getImageBytes(), headers, HttpStatus.OK);
+    }
+
+
+    @DeleteMapping("/images/{imageId}")
+    public ResponseEntity<Void> deleteImage(@PathVariable Integer imageId) {
+        productsService.deleteImage(imageId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }

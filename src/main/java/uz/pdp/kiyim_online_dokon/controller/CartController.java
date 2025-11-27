@@ -1,45 +1,68 @@
 package uz.pdp.kiyim_online_dokon.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uz.pdp.kiyim_online_dokon.dto.CartItemDTO;
+import uz.pdp.kiyim_online_dokon.dto.CartsDTO;
+import uz.pdp.kiyim_online_dokon.service.interfaces.CartService;
 
-import java.security.Principal;
+import java.util.List;
 
-@Tag(name = "7. Cart", description = "Savat operatsiyalari")
 @RestController
-@RequestMapping("/api/cart")
+@RequestMapping("/api/carts")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
 public class CartController {
-
     private final CartService cartService;
 
-    @Operation(summary = "Savatni ko'rish")
-    @GetMapping
-    public ResponseEntity<ApiResponse<CartDto>> getCart(Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.getCart(principal)));
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<CartsDTO> getCartByUser(@PathVariable Integer userId) {
+        CartsDTO cartsDTO = cartService.getCartByUserId(userId);
+        return ResponseEntity.ok(cartsDTO);
     }
 
-    @Operation(summary = "Savatga qo'shish")
-    @PostMapping("/add")
-    public ResponseEntity<ApiResponse<CartDto>> add(@Valid @RequestBody AddToCartRequest dto, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.addToCart(dto, principal)));
+    @DeleteMapping("/{cartId}")
+    public ResponseEntity<Void> deleteCart(@PathVariable Integer cartId) {
+        cartService.deleteCart(cartId);
+        return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Miqdor o'zgartirish")
-    @PutMapping("/update")
-    public ResponseEntity<ApiResponse<CartDto>> update(@Valid @RequestBody UpdateCartItemRequest dto, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.updateQuantity(dto, principal)));
+    @PostMapping
+    public ResponseEntity<CartsDTO> createCart(@RequestBody CartsDTO dto) {
+        CartsDTO createdCart = cartService.createCart(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdCart);
     }
 
-    @Operation(summary = "Savatdan o'chirish")
-    @DeleteMapping("/remove/{productId}")
-    public ResponseEntity<ApiResponse<CartDto>> remove(@PathVariable Long productId, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(cartService.removeItem(productId, principal)));
+    @PutMapping("/{cartId}")
+    public ResponseEntity<CartsDTO> updateCart(@PathVariable Integer cartId,
+                                               @RequestBody CartsDTO dto) {
+        CartsDTO updatedCart = cartService.updateCart(cartId, dto);
+        return ResponseEntity.ok(updatedCart);
+    }
+
+
+    @PostMapping("/{cartId}/items")
+    public ResponseEntity<CartItemDTO> addItemToCart(@PathVariable Integer cartId, @RequestBody CartItemDTO cartItemDTO) {
+        CartItemDTO added = cartService.addItemToCart(cartId,cartItemDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(added);
+    }
+
+    @PutMapping("/items/{itemId}")
+    public ResponseEntity<CartItemDTO> updateCartItem(@PathVariable Integer itemId, @RequestBody CartItemDTO cartItemDTO) {
+        CartItemDTO updated = cartService.updateCartItem(itemId,cartItemDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/items/{itemId}")
+    public ResponseEntity<Void> deleteCartItem(@PathVariable Integer itemId) {
+        cartService.deleteCartItem(itemId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{cartId}/items")
+    public ResponseEntity<List<CartItemDTO>> getCartItems(@PathVariable Integer cartId) {
+        List<CartItemDTO> items = cartService.getCartItems(cartId);
+        return ResponseEntity.ok(items);
     }
 }

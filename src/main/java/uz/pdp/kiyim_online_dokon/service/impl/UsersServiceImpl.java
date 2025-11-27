@@ -2,33 +2,36 @@ package uz.pdp.kiyim_online_dokon.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import uz.pdp.kiyim_online_dokon.entity.Users;
+import uz.pdp.kiyim_online_dokon.dto.UserDTO;
 import uz.pdp.kiyim_online_dokon.repository.UsersRepository;
-import uz.pdp.kiyim_online_dokon.service.UsersService;
+import uz.pdp.kiyim_online_dokon.service.interfaces.UsersService;
 
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class UsersServiceImpl implements UsersService {
-    private final UsersRepository usersRepository;
+    private  final UsersRepository usersRepository;
+
+
 
     @Override
-    public void deleteById(Integer id) {
-        usersRepository.deleteById(id);
+    public void updateUser(Integer id, UserDTO dto) {
+
     }
 
     @Override
-    public void save(Users user) {
-        usersRepository.save(user);
+    public void deleteUser(Integer id) {
+
     }
 
     @Override
-    public Users findById(Integer id) {
-        return usersRepository.findById(id).orElse(null);
+    public UserDTO getUser(Integer id) {
+        return null;
     }
 
     @Override
-    public List<Users> findAll() {
-        return usersRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        return List.of();
     }
 }

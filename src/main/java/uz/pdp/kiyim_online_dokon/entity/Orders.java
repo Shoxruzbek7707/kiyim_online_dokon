@@ -20,10 +20,11 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 public class Orders {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
-    @ManyToOne @JoinColumn(nullable = false)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne @JoinColumn(name = "user_id",nullable = false)
     private Users user;
 
     @Column(nullable = false)

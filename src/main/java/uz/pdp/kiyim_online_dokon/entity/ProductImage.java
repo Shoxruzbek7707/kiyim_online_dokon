@@ -14,14 +14,17 @@ import lombok.Setter;
 @Table(name = "product-images")
 public class ProductImage {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Products product;
 
-    @Column(nullable = false)
-    private String imageUrl;
+    @Lob
+    @Column(columnDefinition = "BYTEA") // PostgreSQL bo'lsa
+    private byte[] imageBytes;
 
-    private Boolean isMain = false;
+    public Boolean isMain = false;
+
+
 }
