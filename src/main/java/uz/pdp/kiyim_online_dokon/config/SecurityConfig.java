@@ -31,6 +31,7 @@ public class SecurityConfig {
         // Swagger uchun barcha URL larni ochamiz
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(
+                        "api/v1/",
                         "/v3/api-docs/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
