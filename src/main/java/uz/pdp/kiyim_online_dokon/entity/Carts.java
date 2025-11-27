@@ -19,8 +19,8 @@ public class Carts {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
+    @OneToOne(fetch = FetchType.LAZY) // LAZY fetch samaraliroq
+    @JoinColumn(name = "user_id", unique = true, nullable = false)
     private Users user;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)

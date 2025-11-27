@@ -1,44 +1,54 @@
 package uz.pdp.kiyim_online_dokon.controller;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import uz.pdp.kiyim_online_dokon.dto.orderdto.CheckoutRequest;
-import uz.pdp.kiyim_online_dokon.dto.orderdto.OrderDetailDto;
-import uz.pdp.kiyim_online_dokon.dto.orderdto.OrderDto;
+import uz.pdp.kiyim_online_dokon.dto.OrderDTO;
+import uz.pdp.kiyim_online_dokon.service.interfaces.OrderService;
 
-import java.security.Principal;
 import java.util.List;
 
-@Tag(name = "8. Orders", description = "Buyurtma berish va tarix")
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('CUSTOMER')")
 public class OrderController {
-
     private final OrderService orderService;
 
-    @Operation(summary = "Buyurtma berish (Checkout)")
-    @PostMapping("/checkout")
-    public ResponseEntity<ApiResponse<OrderDto>> checkout(@Valid @RequestBody CheckoutRequest dto, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.checkout(dto, principal)));
+    @PostMapping
+    public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO dto) {
+        OrderDTO created = orderService.createOrder(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    @Operation(summary = "Mening buyurtmalarim")
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDTO> getOrderById(@PathVariable Integer id) {
+        return ResponseEntity.ok(orderService.getOrderById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderDTO>> getOrdersByUser(@PathVariable Integer userId) {
+        return ResponseEntity.ok(orderService.getOrdersByUserId(userId));
+    }
+
     @GetMapping
-    public ResponseEntity<ApiResponse<List<OrderDto>>> getMyOrders(Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getMyOrders(principal)));
+    public ResponseEntity<List<OrderDTO>> getAllOrders() {
+        return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    @Operation(summary = "Buyurtma detallari")
-    @GetMapping("/{orderId}")
-    public ResponseEntity<ApiResponse<OrderDetailDto>> getOrder(@PathVariable String orderId, Principal principal) {
-        return ResponseEntity.ok(ApiResponse.success(orderService.getOrderDetail(orderId, principal)));
+    @PutMapping("/{id}")
+    public ResponseEntity<OrderDTO> updateOrder(
+            @PathVariable Integer id,
+            @RequestBody OrderDTO dto
+    ) {
+        OrderDTO updated = orderService.updateOrder(id, dto);
+        return ResponseEntity.ok(updated);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }

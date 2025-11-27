@@ -8,9 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import uz.pdp.kiyim_online_dokon.service.security.CustomUserDetailsService;
+import uz.pdp.kiyim_online_dokon.security.CustomUserDetailsService;
 
 import java.io.IOException;
 
@@ -21,24 +22,37 @@ public class JwtFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
         String authorization = request.getHeader("Authorization");
 
-        if (authorization == null && !authorization.startsWith("Bearer ")) {
-            filterChain.doFilter(request,response);
-            return;
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            String token = authorization.substring(7);
+
+            try {
+                // 1-avval token to‘g‘riligini tekshiramiz
+                if (jwtUtils.validateToken(token)) {
+                    // 2-username ni olamiz
+                    String username = jwtUtils.getUsernameFromToken(token);
+
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+
+                        UsernamePasswordAuthenticationToken authentication =
+                                new UsernamePasswordAuthenticationToken(
+                                        userDetails, null, userDetails.getAuthorities());
+                        authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("JWT xatosi: " + e.getMessage());
+            }
         }
 
-        String token = authorization.substring(7);
-        if (jwtUtils.validateToken(token)) {
-            String username = jwtUtils.getSubject(token);
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-
-            UsernamePasswordAuthenticationToken  authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
     }
 }

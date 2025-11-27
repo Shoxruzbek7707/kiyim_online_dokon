@@ -1,10 +1,7 @@
 package uz.pdp.kiyim_online_dokon.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +18,6 @@ public class Category {
 
     @Column(nullable = false)
     private String name;
-
-    @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private Category parent;
-
-    @OneToMany(mappedBy = "parent")
-    private List<Category> subcategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
     private List<Products> products = new ArrayList<>();

@@ -14,15 +14,11 @@ import java.util.*;
 @Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "users")
 public class Users implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Column(nullable = false)
-    private String fullName;
 
     @Column(unique = true, nullable = false)
     private String username;
@@ -38,9 +34,6 @@ public class Users implements UserDetails {
 
     private boolean enabled = true;
 
-    @Column(unique = true)
-    private String phoneNumber;
-
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Addresses> addresses = new ArrayList<>();
 
@@ -50,8 +43,7 @@ public class Users implements UserDetails {
     @OneToMany(mappedBy = "user")
     private List<Reviews> reviews = new ArrayList<>();
 
-    @OneToOne(mappedBy = "user")
-    private Carts cart;
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

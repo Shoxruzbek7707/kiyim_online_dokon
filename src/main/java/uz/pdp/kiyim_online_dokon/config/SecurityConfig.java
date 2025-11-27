@@ -9,11 +9,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import uz.pdp.kiyim_online_dokon.jwt.JwtFilter;
-import uz.pdp.kiyim_online_dokon.service.security.CustomUserDetailsService;
+import uz.pdp.kiyim_online_dokon.security.CustomUserDetailsService;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -28,19 +29,38 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtFilter jwtFilter) throws Exception {
 
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth ->
-                        auth
-                                .requestMatchers("/auth/**").permitAll()
-                                .anyRequest().authenticated())
-                .httpBasic(withDefaults())
-        ;
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                // CSRF o'chiriladi, chunki JWT ishlatamiz
+                .csrf(csrf -> csrf.disable())
 
-        http.authenticationProvider(authenticationProvider());
+                // Sessiyasiz (stateless) rejim
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // Ruxsat sozlamalari
+                .authorizeHttpRequests(auth -> auth
+                        // Swagger va OpenAPI — hammaga ochiq
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
+                        // Auth endpointlari — login, register, refresh va h.k.
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Barcha qolgan so'rovlar — JWT talab qilinsin
+                        .anyRequest().authenticated()
+                )
+
+                // JWT filter qo'shiladi
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 
