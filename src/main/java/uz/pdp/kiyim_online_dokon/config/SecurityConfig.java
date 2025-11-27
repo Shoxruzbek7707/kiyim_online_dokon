@@ -8,7 +8,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,64 +15,57 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import uz.pdp.kiyim_online_dokon.jwt.JwtFilter;
 import uz.pdp.kiyim_online_dokon.security.CustomUserDetailsService;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtFilter jwtFilter;
     private final CustomUserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
 
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http,
-                                                   JwtFilter jwtFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                // CSRF o'chiriladi, chunki JWT ishlatamiz
+                // CSRF o'chiriladi
                 .csrf(csrf -> csrf.disable())
 
-                // Sessiyasiz (stateless) rejim
+                // Sessiyasiz
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // Ruxsat sozlamalari
+                // Ruxsatlar
                 .authorizeHttpRequests(auth -> auth
-                        // Swagger va OpenAPI — hammaga ochiq
+                        // Swagger uchun ruxsat
                         .requestMatchers(
                                 "/swagger-ui.html",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/v3/api-docs.yaml",
                                 "/swagger-resources/**",
                                 "/webjars/**"
                         ).permitAll()
 
-                        // Auth endpointlari — login, register, refresh va h.k.
+                        // Auth API — kirish / ro‘yxatdan o‘tish
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Barcha qolgan so'rovlar — JWT talab qilinsin
+                        // Boshqa barcha endpointlar himoyalangan
                         .anyRequest().authenticated()
                 )
 
-                // JWT filter qo'shiladi
+                // JWT filter oldindan qo'yiladi
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-//    @Bean
-//    public AuthenticationManager authenticationManager() {
-//        return new ProviderManager();
-//    }
-
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder);
-        return daoAuthenticationProvider;
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
-
 }
