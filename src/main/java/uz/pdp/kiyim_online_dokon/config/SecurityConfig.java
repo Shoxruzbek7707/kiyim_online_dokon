@@ -5,8 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -16,6 +18,7 @@ import uz.pdp.kiyim_online_dokon.security.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // @PreAuthorize ishlashi uchun
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -26,34 +29,40 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf(csrf -> csrf.disable());
+        // CSRF ni o'chirish
+        http.csrf(AbstractHttpConfigurer::disable);
 
-        // Swagger uchun barcha URL larni ochamiz
+        // Authorization sozlamalari
         http.authorizeHttpRequests(auth -> auth
+                // ✅ Swagger va API Documentation yo'llari ochiq
                 .requestMatchers(
-                        "api/v1/",
+                        "/",
+                        "/api/v1/**",
                         "/v3/api-docs/**",
-                        "/swagger-ui.html",
                         "/swagger-ui/**",
+                        "/swagger-ui.html",
                         "/swagger-resources/**",
-                        "/webjars/**"
+                        "/webjars/**",
+                        "/configuration/**"
                 ).permitAll()
 
+                // ✅ Auth endpointlari ochiq (register, login)
                 .requestMatchers("/api/auth/**").permitAll()
 
-                // Qolgan barcha endpointlar JWT bilan himoyalanadi
+                // ✅ Qolgan barcha endpointlar JWT bilan himoyalangan
                 .anyRequest().authenticated()
         );
 
+        // Session yaratmaslik (JWT uchun)
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
+        // JWT Filter qo'shish
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
