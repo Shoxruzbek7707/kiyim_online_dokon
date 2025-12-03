@@ -3,6 +3,7 @@ package uz.pdp.kiyim_online_dokon.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.kiyim_online_dokon.dto.CategoryDTO;
 import uz.pdp.kiyim_online_dokon.dto.ProductsDTO;
@@ -28,12 +29,14 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.getCategoryById(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO dto) {
         CategoryDTO created = categoryService.createCategory(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(
             @PathVariable Integer id,
@@ -43,6 +46,7 @@ public class CategoryController {
         return ResponseEntity.ok(updated);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable Integer id) {
         categoryService.deleteCategory(id);
