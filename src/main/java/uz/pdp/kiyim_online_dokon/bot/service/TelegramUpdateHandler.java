@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import uz.pdp.kiyim_online_dokon.bot.command.BotCommands;
 import uz.pdp.kiyim_online_dokon.bot.handlers.CallbackHandler;
 import uz.pdp.kiyim_online_dokon.bot.handlers.CommandHandler;
-import uz.pdp.kiyim_online_dokon.bot.util.MessagerBuilder;
+import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -42,7 +42,7 @@ public class TelegramUpdateHandler {
         }
 
         // Agar oddiy text bo'lsa, masalan, login uchun (lekin hozir /login bilan)
-        return MessagerBuilder.text(chatId, "❗ Buyruqni / bilan boshlang.");
+        return MessageBuilder.text(chatId, "❗ Buyruqni / bilan boshlang.");
     }
 
     private BotApiMethod<?> handleCallback(CallbackQuery callbackQuery) {

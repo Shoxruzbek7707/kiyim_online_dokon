@@ -10,7 +10,7 @@ import uz.pdp.kiyim_online_dokon.bot.client.BackendClient;
 import uz.pdp.kiyim_online_dokon.bot.dto.CartItemDto;
 import uz.pdp.kiyim_online_dokon.bot.dto.OrderResponse;
 import uz.pdp.kiyim_online_dokon.bot.dto.ProductDto;
-import uz.pdp.kiyim_online_dokon.bot.util.MessagerBuilder;
+import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +25,7 @@ public class BotResponseService {
         try {
             List<ProductDto> products = backendClient.getProducts();
             if (products.isEmpty()) {
-                return MessagerBuilder.text(chatId, "❗ Hozircha mahsulot yo‘q.");
+                return MessageBuilder.text(chatId, "❗ Hozircha mahsulot yo‘q.");
             }
 
             StringBuilder sb = new StringBuilder("🛍 *Mahsulotlar ro‘yxati:*\n\n");
@@ -53,25 +53,25 @@ public class BotResponseService {
                     .replyMarkup(markup)
                     .build();
         } catch (Exception e) {
-            return MessagerBuilder.text(chatId, "❌ Mahsulotlarni yuklashda xatolik: " + e.getMessage());
+            return MessageBuilder.text(chatId, "❌ Mahsulotlarni yuklashda xatolik: " + e.getMessage());
         }
     }
 
     public SendMessage getProductDetailMessage(String chatId, Long id) {
         try {
             ProductDto p = backendClient.getProductById(id);
-            return MessagerBuilder.productDetail(chatId, p);
+            return MessageBuilder.productDetail(chatId, p);
         } catch (Exception e) {
-            return MessagerBuilder.text(chatId, "❌ Mahsulot topilmadi: " + e.getMessage());
+            return MessageBuilder.text(chatId, "❌ Mahsulot topilmadi: " + e.getMessage());
         }
     }
 
     public SendMessage addToCartMessage(String chatId, String token, Long productId) {
         try {
             backendClient.addToCart(token, productId);
-            return MessagerBuilder.text(chatId, "🛒 Mahsulot savatchaga qo‘shildi!");
+            return MessageBuilder.text(chatId, "🛒 Mahsulot savatchaga qo‘shildi!");
         } catch (Exception e) {
-            return MessagerBuilder.text(chatId, "❌ Qo‘shishda xatolik: " + e.getMessage());
+            return MessageBuilder.text(chatId, "❌ Qo‘shishda xatolik: " + e.getMessage());
         }
     }
 
@@ -79,7 +79,7 @@ public class BotResponseService {
         try {
             List<CartItemDto> items = backendClient.getCart(token);
             if (items.isEmpty()) {
-                return MessagerBuilder.text(chatId, "🛒 Savatcha bo‘sh.");
+                return MessageBuilder.text(chatId, "🛒 Savatcha bo‘sh.");
             }
 
             StringBuilder sb = new StringBuilder("🛒 *Savatchadagi mahsulotlar:*\n\n");
@@ -107,7 +107,7 @@ public class BotResponseService {
                     .replyMarkup(markup)
                     .build();
         } catch (Exception e) {
-            return MessagerBuilder.text(chatId, "❌ Savatchani yuklashda xatolik: " + e.getMessage());
+            return MessageBuilder.text(chatId, "❌ Savatchani yuklashda xatolik: " + e.getMessage());
         }
     }
 
@@ -119,9 +119,9 @@ public class BotResponseService {
                     "Jami summa: " + order.getTotalPrice() + " so‘m\n" +
                     "Holati: " + order.getStatus() + "\n" +
                     (order.getMessage() != null ? order.getMessage() : "");
-            return MessagerBuilder.text(chatId, text);
+            return MessageBuilder.text(chatId, text);
         } catch (Exception e) {
-            return MessagerBuilder.text(chatId, "❌ Buyurtma berishda xatolik: " + e.getMessage());
+            return MessageBuilder.text(chatId, "❌ Buyurtma berishda xatolik: " + e.getMessage());
         }
     }
 }

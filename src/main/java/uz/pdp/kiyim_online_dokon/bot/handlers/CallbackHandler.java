@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import uz.pdp.kiyim_online_dokon.bot.service.BotResponseService;
 import uz.pdp.kiyim_online_dokon.bot.security.AuthService;
-import uz.pdp.kiyim_online_dokon.bot.util.MessagerBuilder;
+import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -30,11 +30,14 @@ public class CallbackHandler {
         if (data.startsWith("addcart:")) {
             Long id = Long.valueOf(data.split(":")[1]);
             if (token == null) {
-                return MessagerBuilder.text(chatId, "⚠️ Avval /login qiling!");
+                return MessageBuilder.text(chatId, "⚠️ Avval /login qiling!");
             }
             return responseService.addToCartMessage(chatId, token, id);
         }
+        if (data.equals("checkout")) {
+            return responseService.checkoutMessage(chatId, token);
+        }
 
-        return MessagerBuilder.text(chatId, "⚠️ Callback topilmadi: " + data);
+        return MessageBuilder.text(chatId, "⚠️ Callback topilmadi: " + data);
     }
 }

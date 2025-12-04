@@ -9,7 +9,7 @@ import uz.pdp.kiyim_online_dokon.bot.command.BotCommands;
 import uz.pdp.kiyim_online_dokon.bot.dto.LoginResponse;
 import uz.pdp.kiyim_online_dokon.bot.security.AuthService;
 import uz.pdp.kiyim_online_dokon.bot.service.BotResponseService;
-import uz.pdp.kiyim_online_dokon.bot.util.MessagerBuilder;
+import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 
 @Component
 @RequiredArgsConstructor
@@ -27,12 +27,12 @@ public class CommandHandler {
             case BotCommands.PRODUCTS -> responseService.getProductsMessage(chatId);
             case BotCommands.CART -> cartCommand(chatId);
             case BotCommands.ORDER -> orderCommand(chatId);
-            default -> MessagerBuilder.text(chatId, "❗ Noto'g'ri buyruq: " + command);
+            default -> MessageBuilder.text(chatId, "❗ Noto'g'ri buyruq: " + command);
         };
     }
 
     private SendMessage startCommand(String chatId) {
-        return MessagerBuilder.text(chatId,
+        return MessageBuilder.text(chatId,
                 "👋 Assalomu alaykum! Bizning online kiyimlar do‘konimizga xush kelibsiz.\n\n" +
                         "⚡ Buyruqlar:\n" +
                         "/login - tizimga kirish\n" +
@@ -46,7 +46,7 @@ public class CommandHandler {
         try {
             String[] parts = fullMessage.trim().split("\\s+");
             if (parts.length < 3) {
-                return MessagerBuilder.text(chatId, "❗ Foydalanish: /login username password");
+                return MessageBuilder.text(chatId, "❗ Foydalanish: /login username password");
             }
             String username = parts[1];
             String password = parts[2];
@@ -54,21 +54,21 @@ public class CommandHandler {
             LoginResponse resp = backendClient.login(username, password);
             authService.saveToken(chatId, resp.getToken());
 
-            return MessagerBuilder.text(chatId, "✅ Tizimga muvaffaqiyatli kirdingiz.");
+            return MessageBuilder.text(chatId, "✅ Tizimga muvaffaqiyatli kirdingiz.");
         } catch (Exception e) {
-            return MessagerBuilder.text(chatId, "❌ Login xatosi: " + e.getMessage());
+            return MessageBuilder.text(chatId, "❌ Login xatosi: " + e.getMessage());
         }
     }
 
     private SendMessage logoutCommand(String chatId) {
         authService.removeToken(chatId);
-        return MessagerBuilder.text(chatId, "🔐 Tizimdan chiqdingiz.");
+        return MessageBuilder.text(chatId, "🔐 Tizimdan chiqdingiz.");
     }
 
     private SendMessage cartCommand(String chatId) {
         String token = authService.getToken(chatId);
         if (token == null) {
-            return MessagerBuilder.text(chatId, "❗ Avval /login qiling!");
+            return MessageBuilder.text(chatId, "❗ Avval /login qiling!");
         }
         return responseService.getCartMessage(chatId, token);
     }
@@ -76,7 +76,7 @@ public class CommandHandler {
     private SendMessage orderCommand(String chatId) {
         String token = authService.getToken(chatId);
         if (token == null) {
-            return MessagerBuilder.text(chatId, "❗ Avval /login qiling!");
+            return MessageBuilder.text(chatId, "❗ Avval /login qiling!");
         }
         return responseService.checkoutMessage(chatId, token);
     }

@@ -41,9 +41,12 @@ public class BackendClient {
         return backendWebClient.get()
                 .uri("/products/{id}", id)
                 .retrieve()
+                .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                        resp -> resp.bodyToMono(String.class).map(RuntimeException::new))
                 .bodyToMono(ProductDto.class)
                 .block();
     }
+
 
     // CART
     public void addToCart(String token, Long productId) {
