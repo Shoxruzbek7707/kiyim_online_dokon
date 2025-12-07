@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import uz.pdp.kiyim_online_dokon.bot.service.BotResponseService;
-import uz.pdp.kiyim_online_dokon.bot.security.AuthService;
+import uz.pdp.kiyim_online_dokon.bot.security.AuthService2;
 import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 
 @Component
@@ -13,7 +13,7 @@ import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 public class CallbackHandler {
 
     private final BotResponseService responseService;
-    private final AuthService authService;
+    private final AuthService2 authService;
 
     public SendMessage handle(String chatId, String data) {
         String token = authService.getToken(chatId);

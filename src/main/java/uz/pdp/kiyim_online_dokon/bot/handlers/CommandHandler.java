@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import uz.pdp.kiyim_online_dokon.bot.client.BackendClient;
 import uz.pdp.kiyim_online_dokon.bot.command.BotCommands;
 import uz.pdp.kiyim_online_dokon.bot.dto.LoginResponse;
-import uz.pdp.kiyim_online_dokon.bot.security.AuthService;
+import uz.pdp.kiyim_online_dokon.bot.security.AuthService2;
 import uz.pdp.kiyim_online_dokon.bot.service.BotResponseService;
 import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 
@@ -16,7 +16,7 @@ import uz.pdp.kiyim_online_dokon.bot.util.MessageBuilder;
 public class CommandHandler {
 
     private final BackendClient backendClient;
-    private final AuthService authService;
+    private final AuthService2 authService;
     private final BotResponseService responseService;
 
     public SendMessage handle(String chatId, String command, String fullMessage) {

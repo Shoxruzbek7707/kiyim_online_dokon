@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class AuthService {
+public class AuthService2 {
 
     private final Map<String, String> tokenStore = new ConcurrentHashMap<>();
 
