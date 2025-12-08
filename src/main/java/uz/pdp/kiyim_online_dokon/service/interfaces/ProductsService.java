@@ -21,4 +21,5 @@ public interface ProductsService {
     ProductImageDTO getImageById(Integer imageId);
 
     void deleteImage(Integer imageId);
+    List<ProductsDTO> searchProducts(String query);
 }

@@ -44,6 +44,21 @@ public class ProductsServiceImpl implements ProductsService {
         return dto;
     }
 
+    @Override
+    public List<ProductsDTO> searchProducts(String query) {
+        // 1. Qidiruv so'zini kichik harfga o'tkazamiz va bo'shliqlarni olib tashlaymiz
+        String normalizedQuery = query.trim();
+
+        // 2. Repository orqali qidiruvni amalga oshirish
+        // Quyidagi metod ProductsRepositoryda yaratilgan bo'lishi kerak.
+        List<Products> results = productsRepository.findAllByNameContainingIgnoreCase(normalizedQuery);
+
+        // 3. Entity ro'yxatini DTO ro'yxatiga o'girish
+        return results.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     private Products toEntity(ProductsDTO dto) {
         Products product = new Products();
         product.setId(dto.getId());
