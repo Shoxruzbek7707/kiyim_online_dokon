@@ -2,21 +2,20 @@ package uz.pdp.kiyim_online_dokon.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.kiyim_online_dokon.dto.OrderDTO;
 import uz.pdp.kiyim_online_dokon.dto.OrderItemDTO;
-import uz.pdp.kiyim_online_dokon.entity.OrderItem;
-import uz.pdp.kiyim_online_dokon.entity.Orders;
-import uz.pdp.kiyim_online_dokon.entity.Products;
-import uz.pdp.kiyim_online_dokon.entity.Users;
+import uz.pdp.kiyim_online_dokon.dto.ProductsDTO;
+import uz.pdp.kiyim_online_dokon.entity.*;
 import uz.pdp.kiyim_online_dokon.entity.enums.OrderStatus;
 import uz.pdp.kiyim_online_dokon.entity.enums.PaymentMethod;
-import uz.pdp.kiyim_online_dokon.repository.OrderItemRepository;
-import uz.pdp.kiyim_online_dokon.repository.OrdersRepository;
-import uz.pdp.kiyim_online_dokon.repository.ProductsRepository;
-import uz.pdp.kiyim_online_dokon.repository.UsersRepository;
+import uz.pdp.kiyim_online_dokon.repository.*;
 import uz.pdp.kiyim_online_dokon.service.interfaces.OrderService;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class OrderServiceImpl implements OrderService {
@@ -25,6 +24,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final UsersRepository userRepository;
     private final ProductsRepository productsRepository;
+    private final TelegramUserRepository telegramUserRepository;
 
     private OrderDTO toDTO(Orders order) {
         List<OrderItemDTO> items = order.getItems().stream()
@@ -35,12 +35,20 @@ public class OrderServiceImpl implements OrderService {
                         i.getQuantity()))
                 .toList();
 
+        // Telegram yoki Website user ID ni aniqlash
+        Integer userId = null;
+        if (order.getUser() != null) {
+            userId = order.getUser().getId();
+        } else if (order.getTelegramUser() != null) {
+            userId = order.getTelegramUser().getId();
+        }
+
         return new OrderDTO(
                 order.getId(),
-                order.getUser().getId(),
+                userId,
                 order.getTotalPrice(),
                 order.getStatus().name(),
-                order.getPaymentMethod().name(),
+                order.getPaymentMethod() != null ? order.getPaymentMethod().name() : "CASH",
                 items,
                 order.getCreatedAt(),
                 order.getPayment() == null ? null : order.getPayment().getId()
@@ -48,6 +56,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public OrderDTO createOrder(OrderDTO dto) {
         Users user = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -73,24 +82,82 @@ public class OrderServiceImpl implements OrderService {
         }).toList();
 
         orderItemRepository.saveAll(items);
-
         savedOrder.setItems(items);
 
         return toDTO(savedOrder);
     }
 
+    // ==========================================
+    // TELEGRAM BOT UCHUN YANGI METODLAR
+    // ==========================================
+
     @Override
+    @Transactional
+    public void createOrderForTelegramUser(Integer telegramUserId, List<ProductsDTO> cartItems, Double totalPrice) {
+        TelegramUser telegramUser = telegramUserRepository.findById(telegramUserId)
+                .orElseThrow(() -> new RuntimeException("Telegram user not found with ID: " + telegramUserId));
+
+        Orders order = new Orders();
+        order.setTelegramUser(telegramUser);
+        order.setUser(null); // Website user yo‘q
+        order.setStatus(OrderStatus.PENDING);
+        order.setPaymentMethod(PaymentMethod.CASH);
+        order.setTotalPrice(totalPrice);
+
+        Orders savedOrder = orderRepository.save(order);
+
+        List<OrderItem> orderItems = cartItems.stream().map(productDTO -> {
+            Products product = productsRepository.findById(productDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + productDTO.getId()));
+
+            OrderItem item = new OrderItem();
+            item.setOrder(savedOrder);
+            item.setProduct(product);
+            item.setPriceAtPurchase(productDTO.getPrice());
+            item.setQuantity(1);
+            return item;
+        }).collect(Collectors.toList());
+
+        orderItemRepository.saveAll(orderItems);
+        savedOrder.setItems(orderItems);
+    }
+
+
+    @Override
+    public List<OrderDTO> getOrdersByTelegramUserId(Integer telegramUserId) {
+        // TelegramUser mavjudligini tekshirish
+        if (!telegramUserRepository.existsById(telegramUserId)) {
+            throw new RuntimeException("Telegram user not found with ID: " + telegramUserId);
+        }
+
+        List<Orders> orders = orderRepository.findByTelegramUserId(telegramUserId);
+
+        return orders.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ==========================================
+    // MAVJUD METODLAR
+    // ==========================================
+
+    @Override
+    @Transactional
     public OrderDTO updateOrder(Integer id, OrderDTO dto) {
         Orders order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         order.setStatus(OrderStatus.valueOf(dto.getStatus()));
-        order.setPaymentMethod(PaymentMethod.valueOf(dto.getPaymentMethod()));
+        if (dto.getPaymentMethod() != null) {
+            order.setPaymentMethod(PaymentMethod.valueOf(dto.getPaymentMethod()));
+        }
+        order.setUpdatedAt(LocalDateTime.now());
 
         return toDTO(orderRepository.save(order));
     }
 
     @Override
+    @Transactional
     public void deleteOrder(Integer id) {
         Orders order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));

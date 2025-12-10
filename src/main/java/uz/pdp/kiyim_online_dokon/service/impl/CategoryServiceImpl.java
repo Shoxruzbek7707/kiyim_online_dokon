@@ -2,6 +2,7 @@ package uz.pdp.kiyim_online_dokon.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.pdp.kiyim_online_dokon.dto.CategoryDTO;
 import uz.pdp.kiyim_online_dokon.dto.ProductsDTO;
 import uz.pdp.kiyim_online_dokon.entity.Category;
@@ -9,7 +10,6 @@ import uz.pdp.kiyim_online_dokon.entity.Products;
 import uz.pdp.kiyim_online_dokon.repository.CategoryRepository;
 import uz.pdp.kiyim_online_dokon.service.interfaces.CategoryService;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,18 +33,22 @@ public class CategoryServiceImpl implements CategoryService {
         return category;
     }
 
-
+    @Override
+    public CategoryDTO findByName(String name) {
+        Category category = categoryRepository.findByName(name);
+        return category != null ? toDTO(category) : null;
+    }
 
     @Override
     public CategoryDTO createCategory(CategoryDTO dto) {
-       return toDTO(categoryRepository.save(toEntity(dto)));
+        return toDTO(categoryRepository.save(toEntity(dto)));
     }
 
     @Override
     public CategoryDTO updateCategory(Integer id, CategoryDTO dto) {
         Category category = categoryRepository
                 .findById(id)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id));
 
         category.setName(dto.getName());
         Category updatedCategory = categoryRepository.save(category);
@@ -58,24 +62,26 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO getCategory(Integer id) {
-       return  toDTO(categoryRepository
-               .findById(id)
-               .orElseThrow());
+        return toDTO(categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id)));
     }
 
     @Override
     public List<CategoryDTO> getAllCategories() {
-        return categoryRepository.
-                findAll().stream()
+        return categoryRepository
+                .findAll()
+                .stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ProductsDTO> getProductsByCategoryId(Integer categoryId) {
-        Category  category = categoryRepository
+        Category category = categoryRepository
                 .findById(categoryId)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + categoryId));
 
         List<Products> products = category.getProducts();
 
@@ -88,7 +94,6 @@ public class CategoryServiceImpl implements CategoryService {
             dto.setDescription(p.getDescription());
             dto.setPrice(p.getPrice());
             dto.setStock(p.getStock());
-            dto.setBrand(p.getBrand());
             dto.setCategoryId(categoryId);
             dto.setCreatedAt(p.getCreatedAt());
             productsDTOS.add(dto);
@@ -98,6 +103,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDTO getCategoryById(Integer id) {
-        return toDTO(categoryRepository.findById(id).orElseThrow());
+        return toDTO(categoryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with id: " + id)));
     }
 }

@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import uz.pdp.kiyim_online_dokon.bot.controllers.MessageHandler; // Nomi CallbackQueryHandler dan o'zgartirildi
+import uz.pdp.kiyim_online_dokon.bot.controllers.MessageHandler;
 import uz.pdp.kiyim_online_dokon.bot.session.UserSession;
 import uz.pdp.kiyim_online_dokon.service.interfaces.*;
 
@@ -18,34 +18,34 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class XaridBot extends TelegramLongPollingBot {
 
-    // Service Injection - Bu qism Spring tomonidan avtomatik kiritiladi
+    // Service Injection
     private final ProductsService productsService;
     private final CategoryService categoryService;
     private final CartService cartService;
     private final OrderService orderService;
     private final UsersService usersService;
+    private final TelegramUserService telegramUserService; // <-- To‘g‘ri interface
     private final AddressesService addressesService;
 
     // Session Map
     private final Map<Long, UserSession> sessions = new ConcurrentHashMap<>();
 
-    // Handlerlar
+    // Handler
     private MessageHandler messageHandler;
 
     @Override
     public void onUpdateReceived(Update update) {
-        // Initialization (Faqat bitta MessageHandler kerak, chunki u Command va Textni boshqaradi)
+        // MessageHandler faqat bir marta initialize qilinadi
         if (messageHandler == null) {
             messageHandler = new MessageHandler(this, sessions, productsService,
-                    categoryService, cartService, orderService, usersService);
+                    categoryService, cartService, orderService, telegramUserService); // <-- To‘g‘ri service
         }
 
         if (update.hasMessage() && update.getMessage().hasText()) {
-            // Text va Command xabarlarini MessageHandlerga yuboramiz
             messageHandler.handleMessage(update.getMessage());
         }
 
-        // TODO: Agar Inline tugmalar ishlatilsa, update.hasCallbackQuery() logikasini qo'shing
+        // Agar inline tugmalar ishlatilsa, update.hasCallbackQuery() logikasini qo‘shish mumkin
     }
 
     public void sendMessage(Long chatId, String text, ReplyKeyboardMarkup keyboard) {
@@ -61,7 +61,6 @@ public class XaridBot extends TelegramLongPollingBot {
         }
     }
 
-    // token va username'ni config dan olish yaxshiroq, lekin hozircha shu holatda qoldiramiz
     @Override
     public String getBotUsername() {
         return "Xarid_24Bot";

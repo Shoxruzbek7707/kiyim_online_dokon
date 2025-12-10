@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import uz.pdp.kiyim_online_dokon.entity.enums.OrderStatus;
 import uz.pdp.kiyim_online_dokon.entity.enums.PaymentMethod;
 
@@ -21,11 +22,18 @@ import java.util.List;
 @Table(name = "orders")
 public class Orders {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne @JoinColumn(name = "user_id",nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = true) // nullable true
     private Users user;
+
+    @ManyToOne
+    @JoinColumn(name = "telegram_user_id",nullable = true)
+    private TelegramUser telegramUser;
+
 
     @Column(nullable = false)
     private Double totalPrice;
@@ -37,7 +45,7 @@ public class Orders {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<OrderItem> items = new ArrayList<>();
 
     @OneToOne(mappedBy = "order")
@@ -45,4 +53,7 @@ public class Orders {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

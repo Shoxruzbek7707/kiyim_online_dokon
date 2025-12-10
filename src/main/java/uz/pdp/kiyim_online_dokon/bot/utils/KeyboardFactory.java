@@ -43,6 +43,42 @@ public class KeyboardFactory {
                 .build();
     }
 
+    // Savat uchun klaviatura
+    public static ReplyKeyboardMarkup createCartActionsKeyboard() {
+        KeyboardRow row1 = new KeyboardRow(List.of(
+                new KeyboardButton("✅ Buyurtma berish")
+        ));
+
+        KeyboardRow row2 = new KeyboardRow(List.of(
+                new KeyboardButton("🗑 Savatni tozalash"),
+                new KeyboardButton("🏠 Bosh menu")
+        ));
+
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(List.of(row1, row2))
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(false)
+                .build();
+    }
+
+    // Buyurtma tasdiqlash uchun klaviatura
+    public static ReplyKeyboardMarkup createConfirmationKeyboard() {
+        KeyboardRow row1 = new KeyboardRow(List.of(
+                new KeyboardButton("✅ Ha"),
+                new KeyboardButton("❌ Yo'q")
+        ));
+
+        KeyboardRow row2 = new KeyboardRow(List.of(
+                new KeyboardButton("🏠 Bosh menu")
+        ));
+
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(List.of(row1, row2))
+                .resizeKeyboard(true)
+                .oneTimeKeyboard(false)
+                .build();
+    }
+
     // Mahsulotlar yoki Kategoriyalar ro'yxati uchun universal keyboard
     public static ReplyKeyboardMarkup createDynamicKeyboard(List<String> buttonNames, boolean includeBackButton) {
         List<KeyboardRow> rows = new ArrayList<>();

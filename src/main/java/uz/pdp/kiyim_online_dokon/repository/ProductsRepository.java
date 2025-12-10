@@ -7,5 +7,6 @@ import java.util.List;
 
 public interface ProductsRepository extends JpaRepository<Products, Integer> {
     List<Products> findAllByNameContainingIgnoreCase(String name);
+    Products findByName(String name);
 
 }

@@ -14,7 +14,6 @@ public class ProductsDTO {
     private String description;
     private Double price;
     private Integer stock;
-    private String brand;
     private Integer categoryId;
     private List<Integer> imageIds;
     private LocalDateTime createdAt;

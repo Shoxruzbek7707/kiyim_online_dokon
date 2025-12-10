@@ -1,6 +1,7 @@
 package uz.pdp.kiyim_online_dokon.service.interfaces;
 
 import uz.pdp.kiyim_online_dokon.dto.OrderDTO;
+import uz.pdp.kiyim_online_dokon.dto.ProductsDTO;
 
 import java.util.List;
 
@@ -16,4 +17,6 @@ public interface OrderService {
     List<OrderDTO> getAllOrders();
 
     List<OrderDTO> getOrdersByUserId(Integer userId);
+    void createOrderForTelegramUser(Integer telegramUserId, List<ProductsDTO> cartItems, Double totalPrice);
+    List<OrderDTO> getOrdersByTelegramUserId(Integer telegramUserId);
 }

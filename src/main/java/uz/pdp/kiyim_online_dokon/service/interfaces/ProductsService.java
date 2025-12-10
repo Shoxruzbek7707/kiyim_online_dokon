@@ -8,6 +8,7 @@ import uz.pdp.kiyim_online_dokon.entity.ProductImage;
 import java.util.List;
 
 public interface ProductsService {
+    ProductsDTO findByName(String name);
     ProductsDTO createProduct(ProductsDTO dto);
     ProductsDTO updateProduct(Integer id, ProductsDTO  dto);
     void deleteProduct(Integer id);

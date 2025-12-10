@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uz.pdp.kiyim_online_dokon.dto.ProductImageDTO;
 import uz.pdp.kiyim_online_dokon.dto.ProductsDTO;
-
 import uz.pdp.kiyim_online_dokon.entity.Category;
 import uz.pdp.kiyim_online_dokon.entity.ProductImage;
 import uz.pdp.kiyim_online_dokon.entity.Products;
@@ -33,27 +32,31 @@ public class ProductsServiceImpl implements ProductsService {
         dto.setDescription(product.getDescription());
         dto.setPrice(product.getPrice());
         dto.setStock(product.getStock());
-        dto.setBrand(product.getBrand());
         dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
         dto.setCreatedAt(product.getCreatedAt());
 
         if (product.getImages() != null) {
-            dto.setImageIds(product.getImages().stream().map(img -> img.getId()).collect(Collectors.toList()));
+            dto.setImageIds(product.getImages().stream().map(ProductImage::getId).collect(Collectors.toList()));
         }
 
         return dto;
     }
 
     @Override
+    public ProductsDTO findByName(String name) {
+        Products product = productsRepository.findByName(name);
+        return product != null ? toDTO(product) : null;
+    }
+
+    @Override
     public List<ProductsDTO> searchProducts(String query) {
-        // 1. Qidiruv so'zini kichik harfga o'tkazamiz va bo'shliqlarni olib tashlaymiz
+        // Qidiruv so'zini tozalash
         String normalizedQuery = query.trim();
 
-        // 2. Repository orqali qidiruvni amalga oshirish
-        // Quyidagi metod ProductsRepositoryda yaratilgan bo'lishi kerak.
+        // Repository orqali qidiruvni amalga oshirish
         List<Products> results = productsRepository.findAllByNameContainingIgnoreCase(normalizedQuery);
 
-        // 3. Entity ro'yxatini DTO ro'yxatiga o'girish
+        // Entity ro'yxatini DTO ro'yxatiga o'girish
         return results.stream()
                 .map(this::toDTO)
                 .collect(Collectors.toList());
@@ -66,7 +69,6 @@ public class ProductsServiceImpl implements ProductsService {
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
-        product.setBrand(dto.getBrand());
         product.setCreatedAt(dto.getCreatedAt());
         return product;
     }
@@ -84,27 +86,32 @@ public class ProductsServiceImpl implements ProductsService {
     public ProductsDTO createProduct(ProductsDTO dto) {
         Products product = toEntity(dto);
         product.setCreatedAt(LocalDateTime.now());
+
+        // Kategoriyani o'rnatish
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
+            product.setCategory(category);
+        }
+
         Products savedProduct = productsRepository.save(product);
         return toDTO(savedProduct);
-
     }
 
     @Override
     public ProductsDTO updateProduct(Integer id, ProductsDTO dto) {
-        Products existing = productsRepository.findById(id).orElse(null);
+        Products existing = productsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         existing.setName(dto.getName());
         existing.setDescription(dto.getDescription());
         existing.setPrice(dto.getPrice());
         existing.setStock(dto.getStock());
-        existing.setBrand(dto.getBrand());
-
-        Category category = categoryRepository.findById(dto.getCategoryId()).orElse(null);
-        existing.setCategory(category);
 
         if (dto.getCategoryId() != null) {
-            Products updatedProduct = productsRepository.save(existing);
-            return toDTO(updatedProduct);
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found with id: " + dto.getCategoryId()));
+            existing.setCategory(category);
         }
 
         Products updated = productsRepository.save(existing);
@@ -114,12 +121,13 @@ public class ProductsServiceImpl implements ProductsService {
     @Override
     public void deleteProduct(Integer id) {
         productsRepository.deleteById(id);
-
     }
 
     @Override
     public ProductsDTO getProduct(Integer id) {
-        return toDTO(productsRepository.findById(id).orElse(null));
+        Products product = productsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+        return toDTO(product);
     }
 
     @Override
@@ -132,38 +140,38 @@ public class ProductsServiceImpl implements ProductsService {
 
     @Override
     public ProductsDTO getProductById(Integer id) {
-        Products products = productsRepository.findById(id).orElse(null);
+        Products products = productsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
         return toDTO(products);
     }
 
     @Override
     public ProductImageDTO uploadImage(Integer productId, MultipartFile file, boolean isMain) {
-        Products product = productsRepository.findById(productId).orElse(null);
+        Products product = productsRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + productId));
 
-        ProductImage  image = new ProductImage();
+        ProductImage image = new ProductImage();
         image.setProduct(product);
         try {
             image.setImageBytes(file.getBytes());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to upload image: " + e.getMessage(), e);
         }
         image.setIsMain(isMain);
 
-        ProductImage saved;
-        saved = productImageRepository.save(image);
+        ProductImage saved = productImageRepository.save(image);
         return toImageDTO(saved);
-
-
     }
 
     @Override
     public ProductImageDTO getImageById(Integer imageId) {
-        return toImageDTO(productImageRepository.findById(imageId).orElse(null));
+        ProductImage image = productImageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found with id: " + imageId));
+        return toImageDTO(image);
     }
 
     @Override
     public void deleteImage(Integer imageId) {
         productImageRepository.deleteById(imageId);
-
     }
 }
