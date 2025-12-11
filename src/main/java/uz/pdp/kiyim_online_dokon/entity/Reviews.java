@@ -27,7 +27,7 @@ public class Reviews {
     private Products product;
 
     @Column(nullable = false)
-    private Integer rating; // 1-5
+    private Integer rating; //
 
     private String comment;
 

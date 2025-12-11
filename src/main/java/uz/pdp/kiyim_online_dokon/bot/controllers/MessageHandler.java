@@ -44,13 +44,11 @@ public class MessageHandler {
         String text = message.getText();
         UserSession session = sessions.computeIfAbsent(chatId, UserSession::new);
 
-        // Buyruqlar (Commands)
         if (text.startsWith("/")) {
             handleCommand(chatId, text, session, message);
             return;
         }
 
-        // Holatga bog'liq matnlar
         if (session.getState() == UserState.SEARCHING) {
             handleSearch(chatId, text, session);
             return;
@@ -61,7 +59,6 @@ public class MessageHandler {
             return;
         }
 
-        // Asosiy menyu tugmalari
         switch (text) {
             case "🏠 Bosh menu" -> showMainMenu(chatId, session);
             case "📦 Mahsulotlar" -> showCategories(chatId, session);
@@ -77,7 +74,6 @@ public class MessageHandler {
 
     private void handleCommand(Long chatId, String text, UserSession session, Message message) {
         if (text.equals("/start")) {
-            // Agar foydalanuvchi hali ro'yxatdan o'tmagan bo'lsa
             if (session.getUserId() == null) {
                 registerUser(chatId, session, message);
             } else {
@@ -88,15 +84,12 @@ public class MessageHandler {
         }
     }
 
-    // --- RO'YXATDAN O'TKAZISH FUNKSIYASI ---
     private void registerUser(Long chatId, UserSession session, Message message) {
         try {
-            // Telegram ma'lumotlarini olish
             String firstName = message.getFrom().getFirstName();
             String lastName = message.getFrom().getLastName();
             String username = message.getFrom().getUserName();
 
-            // Foydalanuvchini bazaga qo'shish
             Integer userId = telegramUserService.createOrGetUser(
                     chatId,
                     firstName,
@@ -104,10 +97,8 @@ public class MessageHandler {
                     username
             );
 
-            // Session'ga userId ni saqlash
             session.setUserId(userId);
 
-            // Xush kelibsiz xabari
             String welcomeMessage = "🎉 Xush kelibsiz, " + firstName + "!\n\n" +
                     "✅ Siz muvaffaqiyatli ro'yxatdan o'tdingiz!\n" +
                     "🛍 Endi siz mahsulotlarni ko'rib, xarid qilishingiz mumkin.";
@@ -123,7 +114,6 @@ public class MessageHandler {
         }
     }
 
-    // --- Bosh menyu funksiyalari ---
 
     private void showMainMenu(Long chatId, UserSession session) {
         session.setState(UserState.MAIN_MENU);
@@ -157,7 +147,7 @@ public class MessageHandler {
                 "📦 Keng assortiment\n" +
                 "🚚 Tez yetkazib berish\n" +
                 "💳 Qulay to'lov usullari\n\n" +
-                "📞 Aloqa: +998 XX XXX XX XX";
+                "📞 Aloqa: +998 95 898 45 55";
         bot.sendMessage(chatId, about, KeyboardFactory.createMainMenuKeyboard());
     }
 
@@ -268,7 +258,6 @@ public class MessageHandler {
             List<ProductsDTO> cartItems = session.getCart();
             double total = cartItems.stream().mapToDouble(ProductsDTO::getPrice).sum();
 
-            // Telegram foydalanuvchisi uchun buyurtma yaratish
             orderService.createOrderForTelegramUser(telegramUserId, cartItems, total);
 
             session.clearCart();
@@ -288,7 +277,6 @@ public class MessageHandler {
         }
     }
 
-    // --- Dynamic Tugma tanlovini boshqarish ---
 
     private void handleDynamicSelection(Long chatId, String text, UserSession session) {
         List<CategoryDTO> allCategories = categoryService.getAllCategories();

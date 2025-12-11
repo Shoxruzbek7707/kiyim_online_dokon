@@ -21,7 +21,7 @@ public class ProductImage {
     private Products product;
 
     @Lob
-    @Column(columnDefinition = "BYTEA") // PostgreSQL bo'lsa
+    @Column(columnDefinition = "BYTEA")
     private byte[] imageBytes;
 
     public Boolean isMain = false;

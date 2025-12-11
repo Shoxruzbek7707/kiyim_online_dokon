@@ -24,18 +24,15 @@ public class XaridBot extends TelegramLongPollingBot {
     private final CartService cartService;
     private final OrderService orderService;
     private final UsersService usersService;
-    private final TelegramUserService telegramUserService; // <-- To‘g‘ri interface
+    private final TelegramUserService telegramUserService;
     private final AddressesService addressesService;
 
-    // Session Map
     private final Map<Long, UserSession> sessions = new ConcurrentHashMap<>();
 
-    // Handler
     private MessageHandler messageHandler;
 
     @Override
     public void onUpdateReceived(Update update) {
-        // MessageHandler faqat bir marta initialize qilinadi
         if (messageHandler == null) {
             messageHandler = new MessageHandler(this, sessions, productsService,
                     categoryService, cartService, orderService, telegramUserService); // <-- To‘g‘ri service
@@ -45,7 +42,6 @@ public class XaridBot extends TelegramLongPollingBot {
             messageHandler.handleMessage(update.getMessage());
         }
 
-        // Agar inline tugmalar ishlatilsa, update.hasCallbackQuery() logikasini qo‘shish mumkin
     }
 
     public void sendMessage(Long chatId, String text, ReplyKeyboardMarkup keyboard) {

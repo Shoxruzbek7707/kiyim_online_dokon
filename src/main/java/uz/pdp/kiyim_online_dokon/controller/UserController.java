@@ -8,8 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import uz.pdp.kiyim_online_dokon.dto.UserDTO;
 import uz.pdp.kiyim_online_dokon.service.impl.UsersServiceImpl;
-import uz.pdp.kiyim_online_dokon.service.interfaces.UsersService;
+
 
 import java.util.List;
 
@@ -27,8 +28,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "Users not found")
     })
     @GetMapping
-    public <UserDto>
-    List<UserDto> getAll() {
-        return (List<UserDto>) userServiceImpl.getAllUsers();
+    public List<UserDTO> getAll() {
+        return userServiceImpl.getAllUsers();
     }
 }

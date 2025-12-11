@@ -3,7 +3,6 @@ package uz.pdp.kiyim_online_dokon.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import uz.pdp.kiyim_online_dokon.dto.OrderDTO;
 import uz.pdp.kiyim_online_dokon.service.interfaces.OrderService;
@@ -17,7 +16,6 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-//    @PreAuthorize("hasRole('ADMIN') or @orderSecurity.userId(#userId)")
     public ResponseEntity<OrderDTO> createOrder(@RequestBody OrderDTO dto) {
         OrderDTO created = orderService.createOrder(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);

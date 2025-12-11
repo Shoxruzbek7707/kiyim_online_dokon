@@ -29,12 +29,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        // CSRF ni o'chirish
         http.csrf(AbstractHttpConfigurer::disable);
 
-        // Authorization sozlamalari
         http.authorizeHttpRequests(auth -> auth
-                // ✅ Swagger va API Documentation yo'llari ochiq
+
                 .requestMatchers(
                         "/",
                         "/api/v1/**",
@@ -46,19 +44,15 @@ public class SecurityConfig {
                         "/configuration/**"
                 ).permitAll()
 
-                // ✅ Auth endpointlari ochiq (register, login)
                 .requestMatchers("/api/auth/**").permitAll()
 
-                // ✅ Qolgan barcha endpointlar JWT bilan himoyalangan
                 .anyRequest().authenticated()
         );
 
-        // Session yaratmaslik (JWT uchun)
         http.sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
-        // JWT Filter qo'shish
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

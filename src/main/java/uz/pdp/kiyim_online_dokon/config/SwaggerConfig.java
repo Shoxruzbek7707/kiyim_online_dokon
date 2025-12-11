@@ -13,7 +13,6 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        // JWT uchun security scheme
         final String securitySchemeName = "bearerAuth";
 
         return new OpenAPI()
@@ -23,7 +22,6 @@ public class SwaggerConfig {
                                 "Login qiling va tokenni 'Authorize' tugmasiga kiriting.")
                         .version("1.0"))
 
-                // ✅ JWT Security Scheme qo'shish
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
@@ -32,7 +30,7 @@ public class SwaggerConfig {
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("JWT token kiriting (Bearer so'zsiz)")
+                                        .description("JWT token kiriting")
                         )
                 );
     }

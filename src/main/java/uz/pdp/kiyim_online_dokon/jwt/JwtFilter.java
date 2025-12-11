@@ -41,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // ✅ Public URL bo'lsa, JWT tekshirmasdan o'tkazish
+        // Public URL bo'lsa, JWT tekshirmasdan o'tkazish
         if (isPublicUrl(path)) {
             filterChain.doFilter(request, response);
             return;

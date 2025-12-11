@@ -19,7 +19,7 @@ public class UserSession {
         this.state = UserState.MAIN_MENU;
         this.cart = new ArrayList<>();
         this.lastDisplayedProducts = new ArrayList<>();
-        this.userId = null; // Keyin o'rnatiladi
+        this.userId = null;
     }
 
     public void addToCart(ProductsDTO product) {

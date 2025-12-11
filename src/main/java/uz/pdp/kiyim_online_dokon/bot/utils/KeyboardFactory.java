@@ -43,7 +43,6 @@ public class KeyboardFactory {
                 .build();
     }
 
-    // Savat uchun klaviatura
     public static ReplyKeyboardMarkup createCartActionsKeyboard() {
         KeyboardRow row1 = new KeyboardRow(List.of(
                 new KeyboardButton("✅ Buyurtma berish")
@@ -61,7 +60,6 @@ public class KeyboardFactory {
                 .build();
     }
 
-    // Buyurtma tasdiqlash uchun klaviatura
     public static ReplyKeyboardMarkup createConfirmationKeyboard() {
         KeyboardRow row1 = new KeyboardRow(List.of(
                 new KeyboardButton("✅ Ha"),
@@ -79,11 +77,9 @@ public class KeyboardFactory {
                 .build();
     }
 
-    // Mahsulotlar yoki Kategoriyalar ro'yxati uchun universal keyboard
     public static ReplyKeyboardMarkup createDynamicKeyboard(List<String> buttonNames, boolean includeBackButton) {
         List<KeyboardRow> rows = new ArrayList<>();
 
-        // Har 2 ta elementni bitta qatorga joylash
         for (int i = 0; i < buttonNames.size(); i += 2) {
             KeyboardRow row = new KeyboardRow();
             row.add(new KeyboardButton(buttonNames.get(i)));
