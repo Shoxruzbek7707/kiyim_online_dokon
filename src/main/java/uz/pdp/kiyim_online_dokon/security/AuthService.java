@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.pdp.kiyim_online_dokon.dto.AuthRequest;
+import uz.pdp.kiyim_online_dokon.dto.LoginRequest;
 import uz.pdp.kiyim_online_dokon.entity.Role;
 import uz.pdp.kiyim_online_dokon.entity.Users;
 import uz.pdp.kiyim_online_dokon.jwt.JwtUtils;
@@ -24,9 +25,9 @@ public class AuthService {
     private final UsersRepository userRepository;
     private final RoleRepository roleRepository;
 
-    public String token(AuthRequest authRequest){
-        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.username());
-        if(passwordEncoder.matches(authRequest.password(),userDetails.getPassword())){
+    public String token(LoginRequest loginRequest) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.username());
+        if(passwordEncoder.matches(loginRequest.password(),userDetails.getPassword())){
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -43,6 +44,7 @@ public class AuthService {
                     .builder()
                     .username(authRequest.username())
                     .password(passwordEncoder.encode(authRequest.password()))
+                    .email(authRequest.email())
                     .roles(Set.of(roleUser))
                     .build());
         }

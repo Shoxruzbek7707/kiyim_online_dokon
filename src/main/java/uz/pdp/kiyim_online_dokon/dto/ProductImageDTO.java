@@ -2,16 +2,20 @@ package uz.pdp.kiyim_online_dokon.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class ProductImageDTO {
+
     private Integer id;
-    private Integer productId;
+
+    /**
+     * ✅ Endi byte[] emas, rasmga kirish uchun URL/Path qaytariladi
+     */
+    private String imageUrl;
+
     private Boolean isMain;
-    private byte[] imageBytes;
-
-    public ProductImageDTO() {
-
-    }
+    private Integer productId;
 }

@@ -29,22 +29,22 @@ public class InitDataLoader implements CommandLineRunner {
     public void run(String... args) {
         System.out.println("\n🚀 InitDataLoader ishga tushdi...\n");
 
-        // Rollarni yaratish
+
         Role roleAdmin = createRoleIfNotExists("ROLE_ADMIN");
         Role roleUser = createRoleIfNotExists("ROLE_USER");
 
-        // Admin va oddiy user yaratish
-        createUserIfNotExists("admin", "admin123", roleAdmin);
-        createUserIfNotExists("user", "user123", roleUser);
 
-        // Kategoriyalar yaratish
+        createUserIfNotExists("admin", "admin123", "qoshoqboyevshoxruz0@gmail.com", roleAdmin);
+        createUserIfNotExists("user", "user123", "qoshoqboyevshoxruz778@gmail.com", roleUser);
+
+
         Category erkakKiyim = createCategoryIfNotExists("Erkaklar kiyimi");
         Category ayolKiyim = createCategoryIfNotExists("Ayollar kiyimi");
         Category bolalarKiyim = createCategoryIfNotExists("Bolalar kiyimi");
         Category poyabzal = createCategoryIfNotExists("Poyabzal");
         Category aksessuarlar = createCategoryIfNotExists("Aksessuarlar");
 
-        // Mahsulotlar
+
         createProductIfNotExists("Erkaklar ko'ylagi", "Klassik oq rangdagi erkaklar ko'ylagi",
                 250000.0, 50, erkakKiyim);
 
@@ -75,7 +75,7 @@ public class InitDataLoader implements CommandLineRunner {
         System.out.println("\n✅ InitDataLoader muvaffaqiyatli yakunlandi!\n");
     }
 
-    // ====================== Helpers ======================
+
 
     private Role createRoleIfNotExists(String roleName) {
         Role role = roleRepository.findByName(roleName);
@@ -88,16 +88,17 @@ public class InitDataLoader implements CommandLineRunner {
         return role;
     }
 
-    private void createUserIfNotExists(String username, String password, Role role) {
+    private void createUserIfNotExists(String username, String password, String email, Role role) {
         if (!usersRepository.existsByUsername(username)) {
             Users user = new Users();
             user.setUsername(username);
             user.setPassword(passwordEncoder.encode(password));
+            user.setEmail(email); // EMAIL QO'SHILDI
             user.setEnabled(true);
             user.setRoles(Set.of(role));
 
             usersRepository.save(user);
-            System.out.println("  👤 User yaratildi: " + username);
+            System.out.println("  👤 User yaratildi: " + username + " (Email: " + email + ")");
         }
     }
 

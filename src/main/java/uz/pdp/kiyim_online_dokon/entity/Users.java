@@ -26,6 +26,9 @@ public class Users implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(unique = true, nullable = false)
+    private String email;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles ;
 
@@ -84,5 +87,6 @@ public class Users implements UserDetails {
     public final int hashCode() {
         return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
+
 
 }

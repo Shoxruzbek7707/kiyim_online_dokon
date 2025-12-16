@@ -71,6 +71,12 @@
             <version>0.11.5</version>
         </dependency>
 
+        <!-- Email -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- SWAGGER (Spring Boot 3.5.x uchun TO‘G‘RI versiya) -->
         <dependency>
             <groupId>org.springdoc</groupId>
